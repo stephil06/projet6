@@ -139,7 +139,7 @@ myRouter.route('/api/auth/login')
             // Créer un token signé cf. https://medium.com/@sbesnier1901/s%C3%A9curiser-une-api-avec-node-js-et-jwt-15e14d9df109
             const expiresIn = 24 * 60 * 60;
             const newToken = jwt.sign({
-              user: user._id // decoded.user
+              user: user._id
             },
               'SECRET_KEY',
               {
