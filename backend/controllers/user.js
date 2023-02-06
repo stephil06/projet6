@@ -27,21 +27,39 @@ const User = require('../models/user'); // importer le model User
 
 // signup : inscrire l'utilisateur
 
+
+ /* Retourne true Ssi le mot de passe pwd passé en argument est fort
+  cf. https://askcodez.com/expression-reguliere-pour-la-validation-du-mot-de-passe.html
+*/
+const isMotDePasseFort = (pwd) => {
+  // Le Mot de passe est fort : Il doit contenir minimum 8 caractères & au moins 1 lettre alphabétique minuscule & au moins 1 majuscule 
+  // & au moins 1 chiffre & au moins 1 caractère spécial
+  const paswd = /^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!#$%&?"]).*$/;
+  return pwd.match(paswd) ? true : false;
+}
+
 exports.signup = (req, res, next) => {
   console.log(req.body);
 
-  bcrypt.hash(req.body.password, 10) // saler 10 fois
-    .then(hash => {
-      const user = new User({
-        email: req.body.email,
-        password: hash
-      });
-      // insérer le user dans la BD
-      user.save()
-        .then(() => res.status(201).json({ message: "L'utilisateur a été ajouté en base de données" }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+  if (isMotDePasseFort(req.body.password)) {
+    console.log("Mot de passe fort");
+
+    bcrypt.hash(req.body.password, 10) // saler 10 fois
+      .then(hash => {
+        const user = new User({
+          email: req.body.email,
+          password: hash
+        });
+        // insérer le user dans la BD
+        user.save()
+          .then(() => res.status(201).json({ message: "L'utilisateur a été ajouté en base de données" }))
+          .catch(error => res.status(400).json({ error }));
+      })
+      .catch(error => res.status(500).json({ error }));
+  }
+  else {
+    return res.status(400).json({ erreur: "Le Mot de passe n'est pas assez fort ! (Il doit contenir minimum 8 caractères & au moins 1 lettre alphabétique minuscule & au moins 1 majuscule & au moins 1 chiffre & au moins 1 caractère spécial)" });
+  }
 };
 
 // login : identifier l'utilisateur
@@ -76,13 +94,13 @@ exports.login = (req, res, next) => {
             userId: user._id,
             // fonction sign de jsonwebtoken pour chiffrer un nouveau token
             token: jwt.sign(
-                { userId: user._id },
-                // chaîne secrète pour chiffrer notre token
-                'RANDOM_TOKEN_SECRET',
-                //  durée de validité du token à 24 heures
-                { expiresIn: '24h' }
+              { userId: user._id },
+              // chaîne secrète pour chiffrer notre token
+              'RANDOM_TOKEN_SECRET',
+              //  durée de validité du token à 24 heures
+              { expiresIn: '24h' }
             )
-        });
+          });
 
 
 

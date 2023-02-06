@@ -23,11 +23,18 @@ const uniqueValidator = require('mongoose-unique-validator'); // precondition : 
 const userSchema = mongoose.Schema({
   email: {
     type: String
-    , match: /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/
+    , match: /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-z-0-9]+.)+[a-z]{2,}))$/
     , required: true, unique: true
+    , lowercase: true // enregistrer l'email en minuscules
+    , minlength: [8,"L'email doit avoir au minimum 8 caractères"]
+    , maxlength: [40, "L'email doit avoir au maximum 40 caractères"]
   },
-  password: { type: String, required: true }
+  password: {
+    type: String
+    , required: true
+  }
 });
+
 userSchema.plugin(uniqueValidator);
 
 // const User = mongoose.model('User', userSchema);

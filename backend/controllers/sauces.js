@@ -62,42 +62,41 @@ exports.deleteLaSauce = (req, res, next) => {
 // créer 1 sauce avec les données du body
 exports.createSauce = (req, res, next) => {
   // .post(function (req, res) {
+  console.log('ZZ:', req.auth.userId);
+  // on recherche (en base de données) si l'utilisateur d'identifiant req.body.userId existe
+ User.findById(req.auth.userId, function (err, user) {
+    if (err) {
+      res.status(400).json({ erreur: err });
+    }
+    else { 
 
-// on recherche (en base de données) si l'utilisateur d'identifiant req.body.userId existe
-User.findById(req.body.userId, function (err, user) {
-  if (err) {
-    res.status(400).json({ erreur: err });
-  }
-  else {
+      // Si l'utilisateur existe, on crée l'objet sauce
+      // on utilise le schéma sauce
+      const sauce = new Sauce(); console.log(sauce);
+      // on récupére les données du body pour les ajouter à l'objet Sauce
+      // cela suppose le "bodyParser"
+      sauce.userId = req.auth.userId; // req.body.userId;
 
+      sauce.name = req.body.name;
+      sauce.manufacturer = req.body.manufacturer;
+      sauce.description = req.body.description;
+      sauce.mainPepper = req.body.mainPepper;
+      sauce.imageUrl = `${req.protocol}://${req.get('host')}/images/sauce_1.jpg}`; // req.body.imageUrl;
 
-    // Si l'utilisateur existe, on crée l'objet sauce
-    // on utilise le schéma sauce
-    const sauce = new Sauce(); console.log(sauce);
-    // on récupére les données du body pour les ajouter à l'objet Sauce
-    // cela suppose le "bodyParser"
-    sauce.userId = req.body.userId;
+      // sauce.imageUrl= `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
-    sauce.name = req.body.name;
-    sauce.manufacturer = req.body.manufacturer;
-    sauce.description = req.body.description;
-    sauce.mainPepper = req.body.mainPepper;
-    sauce.imageUrl = `${req.protocol}://${req.get('host')}/images/sauce_1.jpg}`; // req.body.imageUrl;
+      sauce.heat = req.body.heat;
+      console.log(`${req.protocol}://${req.get('host')}/images/${req.file}`); // URL de l'image uploadée
 
-    // sauce.imageUrl= `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+      // on stocke l'objet sauce en base
+      sauce.save(function (err) {
+        if (err) {
+          res.status(400).json({ erreur: err });
+        }
+        res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
+      })
 
-    sauce.heat = req.body.heat;
-    console.log(`${req.protocol}://${req.get('host')}/images/${req.file}`); // URL de l'image uploadée
-
-    // on stocke l'objet sauce en base
-    sauce.save(function (err) {
-      if (err) {
-        res.status(400).json({ erreur: err });
-      }
-      res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
-    })
-
-  } 
+    }
   });
 
 };

@@ -59,8 +59,13 @@ app.listen(port, hostname, function () {
 */
 
 /* Pour tester :
-    1. Dans le dossier backend : nodemon index_sauce.js
-    2. Dans 1 navigateur (eg. Firefox) : http://localhost:3000/api/sauces/
-    OU Dans Postman : http://localhost:3000/
+    1. Dans le dossier backend : nodemon server.js
+    2. Dans Postman :  http://localhost:3000/api/auth/login
+      POST
+      Body raw JSON :
+        {
+      "email": "TOi@gmail.com",
+      "password": "pwd455"
+      }
 */
 
