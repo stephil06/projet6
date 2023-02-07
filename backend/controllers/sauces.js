@@ -36,14 +36,17 @@ myRouter.route('/api/sauces')
 
 // myRouter.route('/api/sauces/:id')
 
-// interroger la DB pour retourner la sauce ayant pour identifiant : id
+/* Retourner la sauce ayant pour identifiant : id dans la base de données
+   Retourner erreur: "La sauce n'existe pas!" si id non valide
+*/
 exports.getLaSauce = (req, res, next) => {
   /* .get(function (req, res) { */
   // fonction Mongoose pour chercher un document par son identifiant
   Sauce.findById(req.params.id, function (err, sauce) {
-    if (err)
-      res.status(400).json({ erreur: err });
-    res.status(200).json(sauce);
+    if (err || sauce === null)
+      res.status(400).json({ erreur: "La sauce n'existe pas!" });
+    else
+      res.status(200).json(sauce);
   });
 };
 
