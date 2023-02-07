@@ -38,6 +38,19 @@ const isMotDePasseFort = (pwd) => {
   return pwd.match(paswd) ? true : false;
 }
 
+/* A partir du body raw JSON 
+     eg. {
+      "email": "pcRaTOPz@po.fr",
+      "password": "aZeertrty4!"
+        }
+  - Si le mot de passe est fort :
+      - insère l'email (en minuscules via lowercase de mongoose.Schema) & le password chiffré (via bcrypt.hash() ) 
+        dans "users" de la base de données
+      - retourne { message: "L'utilisateur a été ajouté en base de données" } 
+  - Sinon :
+      - retourne { erreur: "Le Mot de passe n'est pas assez fort ! } 
+  - Si erreur : Retourne { error }
+*/
 exports.signup = (req, res, next) => {
   console.log(req.body);
 
