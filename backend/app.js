@@ -15,11 +15,18 @@ const bodyParser = require('body-parser');
 const sauceRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
 
-
+require('dotenv').config(); // precondition  : installer le package dotenv : npm install --save dotenv
+                            // Dans le fichier .env, on met VARIABLE_SECRETE_I=valeurI (dont la valeur est accessible via process.env.VARIABLE_SECRETE_I)
+                            // Attention : Ce fichier .env ne doit pas être poussé sur votre dépôt git => le fichier .env est ajouté au fichier .gitignore
+                            // créer une copie du fichier .env.dist et l'appeler .env, et y mettre la configuration. (notamment MongoDB)
 // -----------------------------------------------------------------------------------------------
 // on se connecte à la base de données MongoDB (Atlas)
-const user = 'stephil06'; const pwd = '9ys=cifz';
-const urlMongo = `mongodb+srv://${user}:${pwd}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
+
+// const urlMongo = `mongodb+srv://${user}:${pwd}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
+console.log('DB_USER :' + process.env.DB_USER); 
+const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
+// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+
 console.log(urlMongo);
 mongoose.connect(urlMongo,
   {
@@ -34,6 +41,14 @@ app.use(bodyParser.json());
 
 app.use(helmet());
 
+//  CORS est le mécanisme qui permet aux navigateurs d'accéder à des ressources qu'ils ne pourront pas à l'origine 
+// parce que la ressource est d'une origine différente
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  next();
+});
 
 app.use('/images', express.static(path.join(__dirname, 'images'))); // gérer la ressource images de manière statique (un sous-répertoire de notre répertoire de base, __dirname)
 

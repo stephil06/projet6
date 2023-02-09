@@ -14,7 +14,7 @@ router.get('/', auth, sauceCtrl.getLesSauces); // Lire toutes les sauces
 
 router.get('/:id', auth, sauceCtrl.getLaSauce); // Lire les propriétés d'une sauce ayant pour identifiant :id
 router.delete('/:id', auth, sauceCtrl.deleteLaSauce); // Supprimer la sauce ayant pour identifiant :id
-router.put('/:id', auth, sauceCtrl.updateSauce); // Modifier la sauce ayant pour identifiant :id
+router.put('/:id', auth, multer, sauceCtrl.updateSauce); // Modifier la sauce ayant pour identifiant :id
 
 // appliquer le middleware "multer-config" à la route
 router.post('/', auth, multer, sauceCtrl.createSauce); // Créer une nouvelle sauce

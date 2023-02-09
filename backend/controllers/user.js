@@ -96,61 +96,49 @@ puis SEND
   - Retourne { "erreur": "Login (email; password) incorrect !"} Si identifiants incorrects
 */
 exports.login = (req, res, next) => {
-  console.log(req.body);
 
+/*
+  try {
+    // console.log('toto' + req.body);
+    // var test = JSON.parse(req.body); // Transforme le JSON en objet JS 
+    // console.log('test: ' + typeof req.body || "[NOT FOUND]");
+  } catch (error) {
+    res.status(400).json({ erreur: "Le body est mal écrit !" }); return;
+  }
+*/
   User.findOne({ email: req.body.email })
-    .then(user => {
-      if (!user) {
-        // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
-        // return res.status(401).json({ erreur: "L'utilisateur est inconnu dans la base de données" } ); 
-        return res.status(401).json({ erreur: "Login (email; password) incorrect !" } ); // erreur401 Unauthorized
-      }
-      // fonction compare de bcrypt pour comparer le mot de passe entré par l'utilisateur avec le hash enregistré dans la base de données
-      bcrypt.compare(req.body.password, user.password)
-        .then(valid => {
-          if (!valid) {
-            // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
-            // return res.status(401).json({ erreur: "Mot de passe différent" });
-            return res.status(401).json({ erreur: "Login (email; password) incorrect !" });
-          }
+      .then(user => {
+        if (!user) {
+          // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
+          // return res.status(401).json({ erreur: "L'utilisateur est inconnu dans la base de données" } ); 
+          return res.status(401).json({ erreur: "Login (email; password) incorrect !" }); // erreur401 Unauthorized
+        }
+        // fonction compare de bcrypt pour comparer le mot de passe entré par l'utilisateur avec le hash enregistré dans la base de données
+        bcrypt.compare(req.body.password, user.password)
+          .then(valid => {
+            if (!valid) {
+              // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
+              // return res.status(401).json({ erreur: "Mot de passe différent" });
+              return res.status(401).json({ erreur: "Login (email; password) incorrect !" });
+            }
 
-          res.status(200).json({
-            userId: user._id,
-            // fonction sign de jsonwebtoken pour chiffrer un nouveau token
-            token: jwt.sign(
-              { userId: user._id },
-              // chaîne secrète pour chiffrer notre token
-              // 'RANDOM_TOKEN_SECRET',
-              process.env.RANDOM_TOKEN_SECRET,
-              //  durée de validité du token à 24 heures
-              { expiresIn: '24h' }
-            )
-          });
-
-
-
-
-
-          /*
-          // Créer un token signé cf. https://medium.com/@sbesnier1901/s%C3%A9curiser-une-api-avec-node-js-et-jwt-15e14d9df109
-          const expiresIn = 24 * 60 * 60;
-          const newToken = jwt.sign({
-            user: user._id
-          },
-            'SECRET_KEY',
-            {
-              expiresIn: expiresIn
+            res.status(200).json({
+              userId: user._id,
+              // fonction sign de jsonwebtoken pour chiffrer un nouveau token
+              // Créer un token signé cf. https://medium.com/@sbesnier1901/s%C3%A9curiser-une-api-avec-node-js-et-jwt-15e14d9df109
+              token: jwt.sign(
+                { userId: user._id },
+                // chaîne secrète pour chiffrer notre token
+                // 'RANDOM_TOKEN_SECRET',
+                process.env.RANDOM_TOKEN_SECRET,
+                //  durée de validité du token à 24 heures
+                { expiresIn: '24h' }
+              )
             });
 
-          //  res.header('Authorization', 'Token :' + newToken);
-
-          res.status(200).json({
-            userId: user._id,
-            token: newToken
-          }); */
-        })
-        .catch(error => res.status(500).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
-
+          })
+          .catch(error => res.status(500).json({ error }));
+      })
+      .catch(error => res.status(500).json({ error }));
+ 
 };
