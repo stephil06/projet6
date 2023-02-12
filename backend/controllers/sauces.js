@@ -17,7 +17,7 @@ const User = require('../models/user'); // importer le model user par rapport à
 */
 exports.getLesSauces = (req, res, next) => {
   Sauce.find().then(sauces => res.status(200).json(sauces)) // Retourne toutes les sauces
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(404).json({ error }));
 };
 
 /*
@@ -43,7 +43,7 @@ exports.getLaSauce = (req, res, next) => {
   // fonction Mongoose pour chercher un document par son identifiant
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
-      res.status(400).json({ erreur: "La sauce n'existe pas!" });
+      res.status(404).json({ erreur: "La sauce n'existe pas!" });
     else
       res.status(200).json(sauce);
   });
@@ -63,8 +63,8 @@ exports.deleteLaSauce = (req, res, next) => {
       res.status(400).json({ erreur: "La sauce n'existe pas!" });
     else
       Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
-        .then(() => res.status(200).json({ message: 'Sauce supprimée !' }))
-        .catch((error) => res.status(400).json({ error: error }));
+        .then(() => res.status(204).json({ message: 'Sauce supprimée !' }))
+        .catch((error) => res.status(404).json({ error: error }));
   });
 };
 
@@ -74,6 +74,7 @@ exports.deleteLaSauce = (req, res, next) => {
 */
 exports.updateSauce = (req, res, next) => {
 
+
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
       res.status(400).json({ erreur: "La sauce n'existe pas!" });
@@ -81,10 +82,21 @@ exports.updateSauce = (req, res, next) => {
 
       // Si le fichier mentionné dans le body n'est pas renseigné
       if (req.file === undefined) {
+
+        /*
+        try {
+          console.log("req.body:" + req.body);
+        }
+        catch (error) {
+          res.status(400).json({ erreur: "Le body est mal écrit !" });
+        }*/
+
+        // console.log("req.body:" + req.body.manufacturer);
+
         // On met à jour les infos
         Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
           // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
-          .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!" }))
+          .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
           .catch(error => res.status(400).json({ error }));
       }
       else {
@@ -104,7 +116,7 @@ exports.updateSauce = (req, res, next) => {
           // On met à jour les infos
           Sauce.updateOne({ _id: req.params.id }, { ...objetSauceAvecImage, _id: req.params.id })
             // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
-            .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!" }))
+            .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!)" }))
             .catch(error => res.status(400).json({ error }));
 
         } catch (error) {

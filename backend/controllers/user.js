@@ -71,7 +71,7 @@ exports.signup = (req, res, next) => {
       .catch(error => res.status(500).json({ error }));
   }
   else {
-    return res.status(400).json({ erreur: "Le Mot de passe n'est pas assez fort ! (Il doit contenir minimum 8 caractères & au moins 1 lettre alphabétique minuscule & au moins 1 majuscule & au moins 1 chiffre & au moins 1 caractère spécial)" });
+    return res.status(400).json({ erreur: "Le Mot de passe doit contenir minimum 8 caractères & au moins 1 lettre alphabétique minuscule & au moins 1 majuscule & au moins 1 chiffre & au moins 1 caractère spécial)" });
   }
 };
 
