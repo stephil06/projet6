@@ -94,8 +94,11 @@ exports.updateSauce = (req, res, next) => {
         // console.log("req.body:" + req.body.manufacturer);
 
         // On met à jour les infos
-        Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-          // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
+        // Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+        // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
+        Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id },
+          { runValidators: true }) // => définir l' option runValidators à true pour update()
+        // car les validateurs de mise à jour sont désactivés par défaut
           .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
           .catch(error => res.status(400).json({ error }));
       }
@@ -114,7 +117,10 @@ exports.updateSauce = (req, res, next) => {
           // console.log('sauce:' + objetSauceAvecImage.imageUrl);
 
           // On met à jour les infos
-          Sauce.updateOne({ _id: req.params.id }, { ...objetSauceAvecImage, _id: req.params.id })
+          Sauce.updateOne({ _id: req.params.id }, { ...objetSauceAvecImage, _id: req.params.id }
+            , { runValidators: true }) // => définir l' option runValidators à true pour update()
+            // car les validateurs de mise à jour sont désactivés par défaut
+
             // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
             .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!)" }))
             .catch(error => res.status(400).json({ error }));
