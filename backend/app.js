@@ -57,6 +57,50 @@ app.use('/images', express.static(path.join(__dirname, 'images'))); // gérer la
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
+
+// http://localhost:3000/?prenom=john&nom=doe
+/* app.get('/', (req, res) => {
+  // res.send(req.query.prenom);
+  console.log('toto: ' + req.query);
+  res.send(req.query);
+ }); */
+
+ /*
+ app.get("/:universalURL", (req, res) => {
+  const url = req.originalUrl;
+  res.send("404 URL NOT FOUND : " + url);
+});*/
+
+
+/* Afficher un message d'erreur quand l'endpoint n'existe pas */
+// https://www.geeksforgeeks.org/how-to-get-the-full-url-in-expressjs/?ref=rp
+
+app.get('*', function (req, res) {    
+  const protocol = req.protocol;
+  const host = req.hostname;
+  const url = req.originalUrl;
+  const port = 3000;
+  const fullUrl = `${protocol}://${host}:${port}${url}`
+  
+  if(req.originalUrl != '/api/sauces' ) 
+    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas`});
+});
+
+app.put('*', function (req, res) {    
+  if(req.originalUrl != '/api/sauces' ) 
+    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas`}); 
+});
+
+app.delete('*', function (req, res) {    
+  if(req.originalUrl != '/api/sauces' )
+    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas`});
+});
+
+app.post('*', function (req, res) {    
+  if(req.originalUrl != 'api/auth/signup' || req.originalUrl != 'api/auth/login' || req.originalUrl != '/api/sauces') 
+    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas`});
+});
+
 module.exports = app;
 
 
