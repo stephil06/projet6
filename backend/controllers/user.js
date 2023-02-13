@@ -111,7 +111,7 @@ exports.login = (req, res, next) => {
         if (!user) {
           // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
           // return res.status(401).json({ erreur: "L'utilisateur est inconnu dans la base de données" } ); 
-          return res.status(401).json({ erreur: "Login (email; password) incorrect !" }); // erreur401 Unauthorized
+          return res.status(401).json({ erreur: "L'utilisateur n'est pas connecté ! Login (email; password) incorrect !" }); // erreur401 Unauthorized
         }
         // fonction compare de bcrypt pour comparer le mot de passe entré par l'utilisateur avec le hash enregistré dans la base de données
         bcrypt.compare(req.body.password, user.password)
@@ -119,7 +119,7 @@ exports.login = (req, res, next) => {
             if (!valid) {
               // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
               // return res.status(401).json({ erreur: "Mot de passe différent" });
-              return res.status(401).json({ erreur: "Login (email; password) incorrect !" });
+              return res.status(401).json({ erreur: "L'utilisateur n'est pas connecté ! Login (email; password) incorrect !" });
             }
 
             res.status(200).json({
