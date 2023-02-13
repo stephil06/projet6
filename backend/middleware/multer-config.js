@@ -15,9 +15,13 @@ const storage = multer.diskStorage({
     },
     // la fonction filename indique à multer d'utiliser le nom d'origine, de remplacer les espaces par des underscores et d'ajouter un timestamp Date.now() comme nom de fichier
     filename: (req, file, callback) => {
-        const name = file.originalname.split(' ').join('_');
-        const extension = MIME_TYPES[file.mimetype];
-        callback(null, name + Date.now() + '.' + extension);
+
+        const extension = MIME_TYPES[file.mimetype]; // déterminer l'extension du fichier
+
+        let nomFichier = file.originalname.replace('.' + extension, ''); // enlever le .extension
+        nomFichier = nomFichier.split(' ').join('_'); // remplacer les espaces par des underscores
+        nomFichier = nomFichier + Date.now() + '.' + extension;
+        callback(null, nomFichier);
     }
 });
 
