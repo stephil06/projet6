@@ -70,65 +70,78 @@ exports.deleteLaSauce = (req, res, next) => {
 
 /* Modifier 1 sauce ayant pour identifiant : req.params.id, avec les données du body
   - Si l'idSauce n'existe pas (en base de données) : on retourne { erreur: "La sauce n'existe pas!" }
-  - Sinon, on opère la modification dans la base de données (avec les données du body) & on retourne { message: 'Sauce modifiée!' }
+  - Sinon :
+      - Si req.auth.userId != sauce.userId : on retourne { erreur: "Ne peux pas être modifié par un autre utilisateur !" }
+      - Sinon :
+          - Si le fichier mentionné dans le body n'est pas renseigné :
+              - on opère la modification dans la base de données (avec les données du body) 
+                & on retourne { message: "Sauce modifiée (SANS modification de l'image!)" }
+          - Sinon :
+              - on opère la modification dans la base de données (avec les données du body) 
+                & on retourne { message: "Sauce modifiée (SANS modification de l'image!)" }
+              - & on supprime l'ancienne image  
 */
 exports.updateSauce = (req, res, next) => {
-
 
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
       res.status(400).json({ erreur: "La sauce n'existe pas!" });
     else {
+      console.log('sauce.userId:' + sauce.userId + '; ' + 'req.auth.userId:' + req.auth.userId);
+      if (req.auth.userId != sauce.userId)
+        res.status(403).json({ erreur: "Ne peux pas être modifié par un autre utilisateur !" });
 
-      // Si le fichier mentionné dans le body n'est pas renseigné
-      if (req.file === undefined) {
-
-        /*
-        try {
-          console.log("req.body:" + req.body);
-        }
-        catch (error) {
-          res.status(400).json({ erreur: "Le body est mal écrit !" });
-        }*/
-
-        // console.log("req.body:" + req.body.manufacturer);
-
-        // On met à jour les infos
-        // Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-        // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
-        Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id },
-          { runValidators: true }) // => définir l' option runValidators à true pour update()
-        // car les validateurs de mise à jour sont désactivés par défaut
-          .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
-          .catch(error => res.status(400).json({ error }));
-      }
       else {
-        // Récupérer le nom du fichier mentionné dans le body
-        const nomFichier = req.file.filename;
+        // Si le fichier mentionné dans le body n'est pas renseigné
+        if (req.file === undefined) {
 
-        try {
-          // Transformer le JSON (req.body.sauce) en objet JS
-          const objetSauce = JSON.parse(req.body.sauce);
-
-          const objetSauceAvecImage = {
-            ...objetSauce,
-            imageUrl: `${req.protocol}://${req.get('host')}/images/${nomFichier}`
+          /*
+          try {
+            console.log("req.body:" + req.body);
           }
-          // console.log('sauce:' + objetSauceAvecImage.imageUrl);
+          catch (error) {
+            res.status(400).json({ erreur: "Le body est mal écrit !" });
+          }*/
+
+          // console.log("req.body:" + req.body.manufacturer);
 
           // On met à jour les infos
-          Sauce.updateOne({ _id: req.params.id }, { ...objetSauceAvecImage, _id: req.params.id }
-            , { runValidators: true }) // => définir l' option runValidators à true pour update()
+          // Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+          // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
+          // Sauce.updateOne({ _id: req.params.id }, { ...req.body, userId: "63e4edd5235d2434c755a5fd", _id: req.params.id },
+          Sauce.updateOne({ _id: req.params.id }, { ...req.body, userId: "toto", _id: req.params.id },
+            { runValidators: true }) // => définir l' option runValidators à true pour update()
             // car les validateurs de mise à jour sont désactivés par défaut
-
-            // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
-            .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!)" }))
+            .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
             .catch(error => res.status(400).json({ error }));
-
-        } catch (error) {
-          res.status(400).json({ erreur: "Le body est mal écrit !" });
         }
+        else {
+          // Récupérer le nom du fichier mentionné dans le body
+          const nomFichier = req.file.filename;
 
+          try {
+            // Transformer le JSON (req.body.sauce) en objet JS
+            const objetSauce = JSON.parse(req.body.sauce);
+
+            const objetSauceAvecImage = {
+              ...objetSauce,
+              imageUrl: `${req.protocol}://${req.get('host')}/images/${nomFichier}`
+            }
+            // console.log('sauce:' + objetSauceAvecImage.imageUrl);
+
+            // On met à jour les infos
+            Sauce.updateOne({ _id: req.params.id }, { ...objetSauceAvecImage, _id: req.params.id }
+              , { runValidators: true }) // => définir l' option runValidators à true pour update()
+              // car les validateurs de mise à jour sont désactivés par défaut
+
+              // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
+              .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!)" }))
+              .catch(error => res.status(400).json({ error }));
+
+          } catch (error) {
+            res.status(400).json({ erreur: "Le body est mal écrit !" });
+          }
+        }
       }
     }
   });
