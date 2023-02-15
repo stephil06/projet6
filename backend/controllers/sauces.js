@@ -240,8 +240,11 @@ Méthode POST - Body raw JSON
  }
 puis SEND
 */
+// ATTENTION : Entorse aux Spécifications de l'API : on supprime du body "userId" pour le capturer via req.auth.userId
+// Pour améliorer la sécurité
+
 /* Liker (si like =1) ou Disliker (si like =-1) ou annuler le like/dislike (si like = 0) 
-  une sauce (ayant pour id req.params.id) par l'utilisateur (ayant pour id req.body.userId)
+  une sauce (ayant pour id req.params.id) par l'utilisateur (ayant pour id req.auth.userId)
  - Si le userId n'existe pas : { erreur: "L'utilisateur n'existe pas !" }
  - Si le sauceId n'existe pas : { erreur: "La sauce n'existe pas !" }
  - Sinon :
@@ -262,8 +265,8 @@ exports.likerOuDislikerSauce = (req, res, next) => {
   if (req.body.like != 1 && req.body.like != -1 && req.body.like != 0)
     res.status(400).json({ erreur: "Le statut Like doit être égal à 1, -1 ou 0" });
   else {
-    // rechercher (en base de données) l'utilisateur d'identifiant req.body.userId
-    User.findById(req.body.userId, function (err, user) {
+    // rechercher (en base de données) l'utilisateur d'identifiant req.auth.userId
+    User.findById(req.auth.userId, function (err, user) {
       if (err || user === null) {
         res.status(400).json({ erreur: "L'utilisateur n'existe pas !" });
       }
@@ -279,33 +282,38 @@ exports.likerOuDislikerSauce = (req, res, next) => {
 
             if (req.body.like === 1 || req.body.like === -1)
               // interdire de liker ou de disliker la même sauce plusieurs fois par un même utilisateur
-              if (sauce.usersLiked.includes(req.body.userId) || sauce.usersDisliked.includes(req.body.userId))
+              if (sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId))
                 res.status(400).json({ erreur: "Interdit de liker ou de disliker la même sauce plusieurs fois par un même utilisateur" });
               else
                 if (req.body.like === 1) {
                   // likes +1 & ajout de l'userId dans l'array usersLiked
-                  Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.body.userId } })
+                  Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.auth.userId } }  
+                    , { runValidators: true }) // => définir l' option runValidators à true pour update()
                     .then((sauce) => res.status(200).json({ message: "Un like en plus" }))
                     .catch(error => res.status(400).json({ error }));
                 }
                 else {
                   // dislikes +1 & ajout de l'userId dans l'array usersDisliked  
-                  Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.body.userId } })
+                  Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.auth.userId } }  
+                    , { runValidators: true }) // => définir l' option runValidators à true pour update()
                     .then((sauce) => res.status(200).json({ message: "Un dislike en plus" }))
                     .catch(error => res.status(400).json({ error }));
                 }
             else {
               // req.body.like = 0 : l'utilisateur enlève son like ou dislike
               // Si l'array usersLiked contient l'id de l'utilisateur
-              if (sauce.usersLiked.includes(req.body.userId)) {
+              if (sauce.usersLiked.includes(req.auth.userId)) {
                 // likes -1 & retrait de l'userId de l'array usersLiked
-                Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId } })
+                Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: -1 }, $pull: { usersLiked: req.auth.userId } }
+                  , { runValidators: true }) // => définir l' option runValidators à true pour update()
                   .then((sauce) => res.status(200).json({ message: "Un like en moins" }))
                   .catch(error => res.status(400).json({ error }))
               }
-              else if (sauce.usersDisliked.includes(req.body.userId)) {
+              else if (sauce.usersDisliked.includes(req.auth.userId)) {  
                 // dislikes -1 & retrait de l'userId de l'array usersDisliked
-                Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.body.userId } })
+                Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.auth.userId } }  
+                  , { runValidators: true }) // => définir l' option runValidators à true pour update()
+                  // , usersDisliked: []})
                   .then((sauce) => res.status(200).json({ message: "Un dislike en moins" }))
                   .catch(error => res.status(400).json({ error }))
               }
