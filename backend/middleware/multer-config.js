@@ -1,22 +1,36 @@
-
 const multer = require('multer'); // precondition: npm install multer
 
+/*
 const MIME_TYPES = {
     'image/jpg': 'jpg',
-    'image/jpeg': 'jpg',
+    'image/jpeg': 'jpeg',
     'image/png': 'png'
-};
+};*/
+
+/* Retourne l'extension du nom du fichier passé en argument */
+const getExtension = (nomFichier) => {
+    return nomFichier.split(".").pop();
+     // split() divise une chaîne en un tableau de chaînes
+    // pop() supprime le dernier élément d’un tableau et le renvoie
+}
 
 // indiquer à multer où enregistrer les fichiers entrants
 const storage = multer.diskStorage({
-    // la fonction destination indique à multer d'enregistrer les fichiers dans le dossier images
+    // la fonction destination indique à multer d'enregistrer les fichiers dans le dossier 'images'
     destination: (req, file, callback) => {
         callback(null, 'images');
     },
-    // la fonction filename indique à multer d'utiliser le nom d'origine, de remplacer les espaces par des underscores et d'ajouter un timestamp Date.now() comme nom de fichier
+    // la fonction filename indique à multer comment nommer le nom du fichier (qui sera uploadé dans le dossier 'images') :
+    // i.e. le nom d'origine du fichier, 
+    // en remplaçant les espaces par des underscores & en ajoutant un timestamp Date.now() avant l'extension du fichier
     filename: (req, file, callback) => {
 
-        const extension = MIME_TYPES[file.mimetype]; // déterminer l'extension du fichier
+        console.log("file.originalname:" + file.originalname);
+  
+        const extension = getExtension(file.originalname);
+
+        // const extension = MIME_TYPES[file.mimetype]; // déterminer l'extension du fichier
+        console.log("Extension:" + extension);
 
         let nomFichier = file.originalname.replace('.' + extension, ''); // enlever le .extension
         nomFichier = nomFichier.split(' ').join('_'); // remplacer les espaces par des underscores

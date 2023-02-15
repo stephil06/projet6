@@ -86,11 +86,11 @@ exports.deleteLaSauce = (req, res, next) => {
         // console.log("SAUCE" + sauce);
         supprimerFichier(sauce);
         Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
-        .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
-        .catch(error => res.status(400).json({ error }));
+          .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
+          .catch(error => res.status(400).json({ error }));
       }
     }
-    });
+  });
 };
 
 /* Modifier 1 sauce ayant pour identifiant : req.params.id, avec les données du body
@@ -198,9 +198,11 @@ exports.createSauce = (req, res, next) => {
   }
   else {
     // Récupérer le nom du fichier mentionné dans le body
-    const nomFichier = req.file.filename;
-    console.log('Fichier :' + nomFichier);
-
+    const nomFichier = req.file.filename; console.log('Fichier :' + nomFichier);
+    if (! nomFichier.endsWith('jpg') && ! nomFichier.endsWith('jpeg') && ! nomFichier.endsWith('png') )
+      res.status(400).json({ erreur: "Le fichier du body doit se terminer par jpg, jpeg, ou png !" });
+    
+    else {
     try {
       // Transformer le JSON (req.body.sauce) en objet JS
       const objetSauce = JSON.parse(req.body.sauce);
@@ -226,6 +228,7 @@ exports.createSauce = (req, res, next) => {
     } catch (error) {
       res.status(400).json({ erreur: "Le body.sauce est mal écrit !" });
     }
+  }// else
   }
 };
 
@@ -240,7 +243,7 @@ Méthode POST - Body raw JSON
  }
 puis SEND
 */
-// ATTENTION : Entorse aux Spécifications de l'API : on supprime du body "userId" pour le capturer via req.auth.userId
+// ATTENTION : Entorse aux Spécifications de l'API : on supprime du body "body.userId" pour le capturer via req.auth.userId
 // Pour améliorer la sécurité
 
 /* Liker (si like =1) ou Disliker (si like =-1) ou annuler le like/dislike (si like = 0) 
@@ -287,14 +290,14 @@ exports.likerOuDislikerSauce = (req, res, next) => {
               else
                 if (req.body.like === 1) {
                   // likes +1 & ajout de l'userId dans l'array usersLiked
-                  Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.auth.userId } }  
+                  Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.auth.userId } }
                     , { runValidators: true }) // => définir l' option runValidators à true pour update()
                     .then((sauce) => res.status(200).json({ message: "Un like en plus" }))
                     .catch(error => res.status(400).json({ error }));
                 }
                 else {
                   // dislikes +1 & ajout de l'userId dans l'array usersDisliked  
-                  Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.auth.userId } }  
+                  Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.auth.userId } }
                     , { runValidators: true }) // => définir l' option runValidators à true pour update()
                     .then((sauce) => res.status(200).json({ message: "Un dislike en plus" }))
                     .catch(error => res.status(400).json({ error }));
@@ -309,9 +312,9 @@ exports.likerOuDislikerSauce = (req, res, next) => {
                   .then((sauce) => res.status(200).json({ message: "Un like en moins" }))
                   .catch(error => res.status(400).json({ error }))
               }
-              else if (sauce.usersDisliked.includes(req.auth.userId)) {  
+              else if (sauce.usersDisliked.includes(req.auth.userId)) {
                 // dislikes -1 & retrait de l'userId de l'array usersDisliked
-                Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.auth.userId } }  
+                Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.auth.userId } }
                   , { runValidators: true }) // => définir l' option runValidators à true pour update()
                   // , usersDisliked: []})
                   .then((sauce) => res.status(200).json({ message: "Un dislike en moins" }))
