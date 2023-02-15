@@ -8,6 +8,8 @@ const Sauce = require('../models/sauces'); // importer le model sauces
 
 const User = require('../models/user'); // importer le model user par rapport à la fonction createSauce()
 
+const fs = require('fs'); // pour supprimer les fichiers du dossier 'backend/images'
+
 // -----------------------------------------------------------------------------------------------
 // ----- SAUCES : implémenter les méthodes de notre API -------------------------------------
 // -----------------------------------------------------------------------------------------------
@@ -49,9 +51,25 @@ exports.getLaSauce = (req, res, next) => {
   });
 };
 
+/* Supprimer le fichier correspondant à imageUrl de la sauce passée en argument */
+const supprimerFichier = (sauce) => {
+  // Récupérer le nom du fichier relatif à la sauce (de la base de données)
+  const fichierDB = sauce.imageUrl.split('/images/')[1];
+  console.log("fichierDB: " + fichierDB);
+
+  // Supprimer ledit fichier du dossier '/images'
+  fs.unlink(`../backend/images/${fichierDB}`, (error) => {
+    if (error) console.log(error);
+  });
+}
+
 /* Supprimer la sauce ayant pour identifiant : req.params.id 
     - Si l'idSauce n'existe pas (en base de données) : on retourne { erreur: "La sauce n'existe pas!" } 
-    - Sinon : on supprime la sauce de la base de données & on retourne { message: 'Sauce supprimée !' }
+    - Sinon :
+        - Si req.auth.userId != sauce.userId : on retourne { erreur: "Ne peux pas être supprimé par un autre utilisateur !" }
+        - Sinon :
+            - on supprime le fichier image de ladite sauce (du dossier 'backend/image')
+            - on supprime la sauce de la base de données & on retourne { message: 'Sauce supprimée !' }
 */
 // fonction Mongoose pour supprimer un document par son identifiant
 // Sauce.remove({ _id: req.params.id }, function (err, sauce) { : remove() est deprecated
@@ -61,11 +79,18 @@ exports.deleteLaSauce = (req, res, next) => {
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
       res.status(400).json({ erreur: "La sauce n'existe pas!" });
-    else
-      Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
-        .then(() => res.status(204).json({ message: 'Sauce supprimée !' }))
-        .catch((error) => res.status(404).json({ error: error }));
-  });
+    else {
+      if (req.auth.userId != sauce.userId)
+        res.status(403).json({ erreur: "Ne peux pas être supprimé par un autre utilisateur !" });
+      else {
+        // console.log("SAUCE" + sauce);
+        supprimerFichier(sauce);
+        Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
+        .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
+        .catch(error => res.status(400).json({ error }));
+      }
+    }
+    });
 };
 
 /* Modifier 1 sauce ayant pour identifiant : req.params.id, avec les données du body
@@ -90,7 +115,6 @@ exports.updateSauce = (req, res, next) => {
       console.log('sauce.userId:' + sauce.userId + '; ' + 'req.auth.userId:' + req.auth.userId);
       if (req.auth.userId != sauce.userId)
         res.status(403).json({ erreur: "Ne peux pas être modifié par un autre utilisateur !" });
-
       else {
         // Si le fichier mentionné dans le body n'est pas renseigné
         if (req.file === undefined) {
@@ -116,8 +140,18 @@ exports.updateSauce = (req, res, next) => {
             .catch(error => res.status(400).json({ error }));
         }
         else {
+          supprimerFichier(sauce);
+          /* // Récupérer le nom du fichier relatif à la sauce (de la base de données)
+          const fichierDB = sauce.imageUrl.split('/images/')[1];
+          console.log("fichierDB: " + fichierDB);
+
+          // Supprimer ledit fichier du dossier '/images'
+          fs.unlink(`../backend/images/${fichierDB}`, (error) => {
+            if (error) console.log(error);
+          });
+          */
           // Récupérer le nom du fichier mentionné dans le body
-          const nomFichier = req.file.filename;
+          const fichierBody = req.file.filename; console.log("fichierBody: " + fichierBody);
 
           try {
             // Transformer le JSON (req.body.sauce) en objet JS
@@ -125,7 +159,7 @@ exports.updateSauce = (req, res, next) => {
 
             const objetSauceAvecImage = {
               ...objetSauce,
-              imageUrl: `${req.protocol}://${req.get('host')}/images/${nomFichier}`
+              imageUrl: `${req.protocol}://${req.get('host')}/images/${fichierBody}`
             }
             // console.log('sauce:' + objetSauceAvecImage.imageUrl);
 
