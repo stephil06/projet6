@@ -19,6 +19,7 @@ router.put('/:id', auth, multer, sauceCtrl.updateSauce); // Modifier la sauce ay
 // appliquer le middleware "multer-config" à la route
 router.post('/', auth, multer, sauceCtrl.createSauce); // Créer une nouvelle sauce
 
+
 router.post('/:id/like', auth, sauceCtrl.likerOuDislikerSauce); // liker ou disliker la sauce ayant pour identifiant :id
 
 module.exports = router;

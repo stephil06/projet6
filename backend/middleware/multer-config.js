@@ -10,7 +10,7 @@ const MIME_TYPES = {
 /* Retourne l'extension du nom du fichier passé en argument */
 const getExtension = (nomFichier) => {
     return nomFichier.split(".").pop();
-     // split() divise une chaîne en un tableau de chaînes
+    // split() divise une chaîne en un tableau de chaînes
     // pop() supprime le dernier élément d’un tableau et le renvoie
 }
 
@@ -25,18 +25,33 @@ const storage = multer.diskStorage({
     // en remplaçant les espaces par des underscores & en ajoutant un timestamp Date.now() avant l'extension du fichier
     filename: (req, file, callback) => {
 
-        console.log("file.originalname:" + file.originalname);
-  
-        const extension = getExtension(file.originalname);
+        // capturer le nom du fichier de départ
+        let nomFichier = file.originalname;
+        console.log("file.originalname:" + nomFichier);
+
+        // capturer l'extension du fichier
+        const extension = getExtension(nomFichier);
 
         // const extension = MIME_TYPES[file.mimetype]; // déterminer l'extension du fichier
         console.log("Extension:" + extension);
 
-        let nomFichier = file.originalname.replace('.' + extension, ''); // enlever le .extension
+        nomFichier = nomFichier.replace('.' + extension, ''); // enlever le .extension
         nomFichier = nomFichier.split(' ').join('_'); // remplacer les espaces par des underscores
         nomFichier = nomFichier + Date.now() + '.' + extension;
-        callback(null, nomFichier);
+
+        // const extension2 = MIME_TYPES[file.mimetype];
+        // callback(null, nomFichier);
+        
+        // let ext = getExtension(file.originalname);
+        if (extension !== 'png' && extension !== 'jpg' && extension !== 'jpeg') {
+           return callback(
+            new Error("Seuls les fichiers images sont autorisés !").code = "Seuls les fichiers images sont autorisés");
+        }
+        else
+            callback(null, nomFichier);
+        
     }
+
 });
 
 // on exporte l'élément multer, en précisant que l'on autorise uniquement les téléchargements de fichiers image

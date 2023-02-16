@@ -23,11 +23,11 @@ require('dotenv').config(); // precondition  : installer le package dotenv : npm
 // on se connecte à la base de données MongoDB (Atlas)
 
 // const urlMongo = `mongodb+srv://${user}:${pwd}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
-console.log('DB_USER :' + process.env.DB_USER); 
+// console.log('DB_USER :' + process.env.DB_USER); 
 const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
 // mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
 
-console.log(urlMongo);
+// console.log(urlMongo);
 mongoose.connect(urlMongo,
   {
     useNewUrlParser: true,

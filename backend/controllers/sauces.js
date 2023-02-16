@@ -116,6 +116,7 @@ exports.updateSauce = (req, res, next) => {
       if (req.auth.userId != sauce.userId)
         res.status(403).json({ erreur: "Ne peux pas être modifié par un autre utilisateur !" });
       else {
+        console.log("req.file:" + req.file);
         // Si le fichier mentionné dans le body n'est pas renseigné
         if (req.file === undefined) {
 
@@ -133,7 +134,7 @@ exports.updateSauce = (req, res, next) => {
           // Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
           // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
           // Sauce.updateOne({ _id: req.params.id }, { ...req.body, userId: "63e4edd5235d2434c755a5fd", _id: req.params.id },
-          Sauce.updateOne({ _id: req.params.id }, { ...req.body, userId: "toto", _id: req.params.id },
+          Sauce.updateOne({ _id: req.params.id }, { ...req.body, /* userId: "toto",*/ _id: req.params.id },
             { runValidators: true }) // => définir l' option runValidators à true pour update()
             // car les validateurs de mise à jour sont désactivés par défaut
             .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
@@ -190,7 +191,8 @@ exports.updateSauce = (req, res, next) => {
 */
 exports.createSauce = (req, res, next) => {
 
-  // console.log('body:' + req.body.sauce);
+  // console.log('body:' + req.body.sauce); 
+  console.log('Fichier createSauce:' + req.file);
 
   // Si le fichier mentionné dans le body n'est pas renseigné
   if (req.file === undefined) {
@@ -199,37 +201,38 @@ exports.createSauce = (req, res, next) => {
   else {
     // Récupérer le nom du fichier mentionné dans le body
     const nomFichier = req.file.filename; console.log('Fichier :' + nomFichier);
-    if (! nomFichier.endsWith('jpg') && ! nomFichier.endsWith('jpeg') && ! nomFichier.endsWith('png') )
+    if (!nomFichier.endsWith('jpg') && !nomFichier.endsWith('jpeg') && !nomFichier.endsWith('png'))
       res.status(400).json({ erreur: "Le fichier du body doit se terminer par jpg, jpeg, ou png !" });
-    
+
     else {
-    try {
-      // Transformer le JSON (req.body.sauce) en objet JS
-      const objetSauce = JSON.parse(req.body.sauce);
+      try {
+        // Transformer le JSON (req.body.sauce) en objet JS
+        const objetSauce = JSON.parse(req.body.sauce);
 
-      // Créer un objet sauce
-      const sauce = new Sauce({
-        ...objetSauce // copier les éléments de req.body.sauce
-        // , imageUrl: `${req.protocol}://${req.get('host')}/images/${nomFichier}` // URL de l'image uploadée
-      });
+        // Créer un objet sauce
+        const sauce = new Sauce({
+          ...objetSauce // copier les éléments de req.body.sauce
+          // , imageUrl: `${req.protocol}://${req.get('host')}/images/${nomFichier}` // URL de l'image uploadée
+        });
 
-      // Renseigner les autres propriétés de l'objet sauce
-      sauce.userId = req.auth.userId; // renseigner le userId
-      sauce.imageUrl = `${req.protocol}://${req.get('host')}/images/${nomFichier}`; // renseigner l'imageUrl
+        // Renseigner les autres propriétés de l'objet sauce
+        sauce.userId = req.auth.userId; // renseigner le userId
+        sauce.imageUrl = `${req.protocol}://${req.get('host')}/images/${nomFichier}`; // renseigner l'imageUrl
 
-      // Stocker l'objet sauce en base
-      sauce.save(function (err) {
-        if (err) {
-          res.status(400).json({ erreur: err });
-        }
-        res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
-      })
+        // Stocker l'objet sauce en base
+        sauce.save(function (err) {
+          if (err) {
+            res.status(400).json({ erreur: err });
+          }
+          res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
+        })
 
-    } catch (error) {
-      res.status(400).json({ erreur: "Le body.sauce est mal écrit !" });
-    }
-  }// else
+      } catch (error) {
+        res.status(400).json({ erreur: "Le body.sauce est mal écrit !" });
+      }
+    }// else
   }
+
 };
 
 
