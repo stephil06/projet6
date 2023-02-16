@@ -65,12 +65,15 @@ exports.signup = (req, res, next) => {
         });
         // insérer le user dans la BD
         user.save()
+          // codeHTTP 201 (OK) : "Requête traitée avec succès et création d’un document."
           .then(() => res.status(201).json({ message: "L'utilisateur a été ajouté en base de données" }))
           .catch(error => res.status(400).json({ error }));
       })
+      // // codeHTTP 500 : "Erreur interne du serveur"
       .catch(error => res.status(500).json({ error }));
   }
   else {
+    // codeHTTP 400 : "La syntaxe de la requête est erronée"
     return res.status(400).json({ erreur: "Le Mot de passe doit contenir minimum 8 caractères & au moins 1 lettre alphabétique minuscule & au moins 1 majuscule & au moins 1 chiffre & au moins 1 caractère spécial)" });
   }
 };
@@ -111,6 +114,7 @@ exports.login = (req, res, next) => {
         if (!user) {
           // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
           // return res.status(401).json({ erreur: "L'utilisateur est inconnu dans la base de données" } ); 
+         // codeHTTP 401 : "utilisateur non authentifié"
           return res.status(401).json({ erreur: "L'utilisateur n'est pas connecté ! Login (email; password) incorrect !" }); // erreur401 Unauthorized
         }
         // fonction compare de bcrypt pour comparer le mot de passe entré par l'utilisateur avec le hash enregistré dans la base de données
@@ -119,9 +123,10 @@ exports.login = (req, res, next) => {
             if (!valid) {
               // Quand les identifiants sont faux, mettre un message d'erreur qui ne donne pas d'indice sur l'email
               // return res.status(401).json({ erreur: "Mot de passe différent" });
+              // codeHTTP 401 : "utilisateur non authentifié"
               return res.status(401).json({ erreur: "L'utilisateur n'est pas connecté ! Login (email; password) incorrect !" });
             }
-
+            // codeHTTP 200 (OK) : "succès de la requête"
             res.status(200).json({
               userId: user._id,
               // fonction sign de jsonwebtoken pour chiffrer un nouveau token
@@ -137,6 +142,7 @@ exports.login = (req, res, next) => {
             });
 
           })
+          // codeHTTP 500 : "Erreur interne du serveur"
           .catch(error => res.status(500).json({ error }));
       })
       .catch(error => res.status(500).json({ error }));

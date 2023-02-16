@@ -18,7 +18,11 @@ const fs = require('fs'); // pour supprimer les fichiers du dossier 'backend/ima
    Retourner { error } si erreur
 */
 exports.getLesSauces = (req, res, next) => {
-  Sauce.find().then(sauces => res.status(200).json(sauces)) // Retourne toutes les sauces
+
+  Sauce.find()
+    // codeHTTP 200 (OK) : "succès de la requête"
+    .then(sauces => res.status(200).json(sauces)) // Retourne toutes les sauces
+    // codeHTTP404	Not Found	: "Ressource non trouvée"
     .catch(error => res.status(404).json({ error }));
 };
 
@@ -45,8 +49,10 @@ exports.getLaSauce = (req, res, next) => {
   // fonction Mongoose pour chercher un document par son identifiant
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
+      // codeHTTP404	Not Found	: "Ressource non trouvée"
       res.status(404).json({ erreur: "La sauce n'existe pas!" });
     else
+      // codeHTTP 200 (OK) : "succès de la requête"
       res.status(200).json(sauce);
   });
 };
@@ -78,14 +84,17 @@ exports.deleteLaSauce = (req, res, next) => {
 
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
-      res.status(400).json({ erreur: "La sauce n'existe pas!" });
+      // codeHTTP404	Not Found	: "Ressource non trouvée"
+      res.status(404).json({ erreur: "La sauce n'existe pas!" });
     else {
       if (req.auth.userId != sauce.userId)
+        // codeHTTP403 : Forbidden
         res.status(403).json({ erreur: "Ne peux pas être supprimé par un autre utilisateur !" });
       else {
         // console.log("SAUCE" + sauce);
         supprimerFichier(sauce);
         Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
+          // codeHTTP 200 (OK) : "succès de la requête"
           .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
           .catch(error => res.status(400).json({ error }));
       }
@@ -110,10 +119,12 @@ exports.updateSauce = (req, res, next) => {
 
   Sauce.findById(req.params.id, function (err, sauce) {
     if (err || sauce === null)
-      res.status(400).json({ erreur: "La sauce n'existe pas!" });
+      // codeHTTP404	Not Found	: "Ressource non trouvée"
+      res.status(404).json({ erreur: "La sauce n'existe pas!" });
     else {
       console.log('sauce.userId:' + sauce.userId + '; ' + 'req.auth.userId:' + req.auth.userId);
       if (req.auth.userId != sauce.userId)
+        // codeHTTP403 : Forbidden
         res.status(403).json({ erreur: "Ne peux pas être modifié par un autre utilisateur !" });
       else {
         console.log("req.file:" + req.file);
@@ -137,6 +148,8 @@ exports.updateSauce = (req, res, next) => {
           Sauce.updateOne({ _id: req.params.id }, { ...req.body, /* userId: "toto",*/ _id: req.params.id },
             { runValidators: true }) // => définir l' option runValidators à true pour update()
             // car les validateurs de mise à jour sont désactivés par défaut
+
+            // codeHTTP 200 (OK) : "succès de la requête"
             .then(() => res.status(200).json({ message: "Sauce modifiée (SANS modification de l'image!)" }))
             .catch(error => res.status(400).json({ error }));
         }
@@ -170,6 +183,7 @@ exports.updateSauce = (req, res, next) => {
               // car les validateurs de mise à jour sont désactivés par défaut
 
               // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
+              // codeHTTP 200 (OK) : "succès de la requête"
               .then(() => res.status(200).json({ message: "Sauce modifiée (AVEC modification de l'image!)" }))
               .catch(error => res.status(400).json({ error }));
 
@@ -224,6 +238,8 @@ exports.createSauce = (req, res, next) => {
           if (err) {
             res.status(400).json({ erreur: err });
           }
+          // 201	Created
+          // codeHTTP 201 (OK) Created : "Requête traitée avec succès et création d’un document."
           res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
         })
 
@@ -274,13 +290,15 @@ exports.likerOuDislikerSauce = (req, res, next) => {
     // rechercher (en base de données) l'utilisateur d'identifiant req.auth.userId
     User.findById(req.auth.userId, function (err, user) {
       if (err || user === null) {
-        res.status(400).json({ erreur: "L'utilisateur n'existe pas !" });
+        // codeHTTP404	Not Found	: "Ressource non trouvée"
+        res.status(404).json({ erreur: "L'utilisateur n'existe pas !" });
       }
       else {
         // rechercher (en base de données) la sauce ayant pour id req.params.id
         Sauce.findById(req.params.id, function (err, sauce) {
           if (err || sauce === null) {
-            res.status(400).json({ erreur: "La sauce n'existe pas !" });
+            // codeHTTP404	Not Found	: "Ressource non trouvée"
+            res.status(404).json({ erreur: "La sauce n'existe pas !" });
           }
           else {
             // console.log('User:' + user);
