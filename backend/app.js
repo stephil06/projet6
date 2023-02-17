@@ -21,7 +21,11 @@ require('dotenv').config(); // precondition  : installer le package dotenv : npm
 // -----------------------------------------------------------------------------------------------
 
 // on se connecte à la base de données MongoDB (Atlas)
-const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
+// const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
+
+const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/?retryWrites=true&w=majority`;
+
+// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
 
 mongoose.connect(urlMongo,
   {
@@ -33,6 +37,8 @@ mongoose.connect(urlMongo,
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// app.use(helmet());
 
 //  CORS est le mécanisme qui permet aux navigateurs d'accéder à des ressources qu'ils ne pourront pas à l'origine 
 // parce que la ressource est d'une origine différente
@@ -52,31 +58,13 @@ app.use('/api/auth', userRoutes);
 /* Afficher un message d'erreur quand l'endpoint n'existe pas */
 // https://www.geeksforgeeks.org/how-to-get-the-full-url-in-expressjs/?ref=rp
 
-app.get('*', function (req, res) {
-  /* const protocol = req.protocol;
-  const host = req.hostname;
+app.use('*', function (req, res) {
+  /* 
   const url = req.originalUrl;
-  const port = 3000; 
   const fullUrl = `${protocol}://${host}:${port}${url}`
   */
-
-  if (req.originalUrl != '/api/sauces')
-    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
+  res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
 });
 
-app.put('*', function (req, res) {
-  if (req.originalUrl != '/api/sauces')
-    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
-});
-
-app.delete('*', function (req, res) {
-  if (req.originalUrl != '/api/sauces')
-    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
-});
-
-app.post('*', function (req, res) {
-  if (req.originalUrl != 'api/auth/signup' || req.originalUrl != 'api/auth/login' || req.originalUrl != '/api/sauces')
-    res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
-});
 
 module.exports = app;

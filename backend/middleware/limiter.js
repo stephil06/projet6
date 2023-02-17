@@ -9,7 +9,9 @@ const loginLimiter = rateLimit({
     max: 3, // Limiter chaque IP à 3 requêtes par windowMs (i.e 5 minutes)
     // message: "Trop de connexion. Le compte est bloqué 5 minutes !"
     handler: function (req, res) {
-        return res.status(429).json({ erreur: 'Trop de connexions. Le compte est bloqué 5 minutes.' })
+        // codeHTTP 429 "Too Many Requests"
+        return res.status(429).json({ erreur: "L'utilisateur n'est pas connecté ! Il y a eu trop de connexions."
+            + " Le compte est bloqué 5 minutes." });
     }
 
 });

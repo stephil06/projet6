@@ -94,8 +94,8 @@ exports.deleteLaSauce = (req, res, next) => {
         // console.log("SAUCE" + sauce);
         supprimerFichier(sauce);
         Sauce.deleteOne({ _id: req.params.id }) // On supprime la sauce de la BDD
-          // codeHTTP 200 (OK) : "succès de la requête"
-          .then(() => res.status(200).json({ message: "Sauce supprimée !" }))
+          // codeHTTP 204 (OK) : "succès de la requête"
+          .then(() => res.status(204).json({ message: "Sauce supprimée !" }))
           .catch(error => res.status(400).json({ error }));
       }
     }
@@ -216,7 +216,7 @@ exports.createSauce = (req, res, next) => {
     // Récupérer le nom du fichier mentionné dans le body
     const nomFichier = req.file.filename; console.log('Fichier :' + nomFichier);
     if (!nomFichier.endsWith('jpg') && !nomFichier.endsWith('jpeg') && !nomFichier.endsWith('png'))
-      res.status(400).json({ erreur: "Le fichier du body doit se terminer par jpg, jpeg, ou png !" });
+      res.status(400).json({ erreur: "Le fichier du body doit avoir pour extension : jpg, jpeg, ou png !" });
 
     else {
       try {
@@ -233,15 +233,11 @@ exports.createSauce = (req, res, next) => {
         sauce.userId = req.auth.userId; // renseigner le userId
         sauce.imageUrl = `${req.protocol}://${req.get('host')}/images/${nomFichier}`; // renseigner l'imageUrl
 
-        // Stocker l'objet sauce en base
-        sauce.save(function (err) {
-          if (err) {
-            res.status(400).json({ erreur: err });
-          }
-          // 201	Created
-          // codeHTTP 201 (OK) Created : "Requête traitée avec succès et création d’un document."
-          res.status(201).json({ message: "La sauce a été ajoutée en base de données" });
-        })
+         // Stocker l'objet sauce en base
+        sauce.save()
+        // codeHTTP 201 (OK) Created : "Requête traitée avec succès et création d’un document."
+        .then((sauce) => res.status(201).json({ message: "La sauce a été ajoutée en base de données" }))
+        .catch(error => res.status(400).json({ erreur: error }));
 
       } catch (error) {
         res.status(400).json({ erreur: "Le body.sauce est mal écrit !" });
