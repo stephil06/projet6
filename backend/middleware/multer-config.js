@@ -1,12 +1,5 @@
 const multer = require('multer'); // precondition: npm install multer
 
-/*
-const MIME_TYPES = {
-    'image/jpg': 'jpg',
-    'image/jpeg': 'jpeg',
-    'image/png': 'png'
-};*/
-
 /* Retourne l'extension du nom du fichier passé en argument */
 const getExtension = (nomFichier) => {
     return nomFichier.split(".").pop();
@@ -27,22 +20,14 @@ const storage = multer.diskStorage({
 
         // capturer le nom du fichier de départ
         let nomFichier = file.originalname;
-        console.log("file.originalname:" + nomFichier);
 
         // capturer l'extension du fichier
         const extension = getExtension(nomFichier);
-
-        // const extension = MIME_TYPES[file.mimetype]; // déterminer l'extension du fichier
-        console.log("Extension:" + extension);
 
         nomFichier = nomFichier.replace('.' + extension, ''); // enlever le .extension
         nomFichier = nomFichier.split(' ').join('_'); // remplacer les espaces par des underscores
         nomFichier = nomFichier + Date.now() + '.' + extension;
 
-        // const extension2 = MIME_TYPES[file.mimetype];
-        // callback(null, nomFichier);
-        
-        // let ext = getExtension(file.originalname);
         if (extension !== 'png' && extension !== 'jpg' && extension !== 'jpeg') {
            return callback(
             new Error("Seuls les fichiers images sont autorisés !").code = "Seuls les fichiers images sont autorisés");

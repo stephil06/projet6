@@ -6,7 +6,7 @@ const path = require('path'); //  pour accéder au path de notre serveur
 // precondition : l'installer (npm install mongoose --save)
 const mongoose = require('mongoose'); mongoose.set('strictQuery', true);
 
-// const helmet = require("helmet"); // npm install --save helmet
+const helmet = require("helmet"); // npm install --save helmet
 
 // Utilisation de l'objet body-parser pour utiliser le body
 const bodyParser = require('body-parser');
@@ -21,11 +21,7 @@ require('dotenv').config(); // precondition  : installer le package dotenv : npm
 // -----------------------------------------------------------------------------------------------
 
 // on se connecte à la base de données MongoDB (Atlas)
-// const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.u7l9pec.mongodb.net/?retryWrites=true&w=majority`;
-
 const urlMongo = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/?retryWrites=true&w=majority`;
-
-// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
 
 mongoose.connect(urlMongo,
   {
@@ -39,6 +35,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // app.use(helmet());
+// Pour toutes les requêtes : utilisation du package 'helmet' 
+// pour sécuriser les en-têtes HTTP contre les attaques (eg. cross-site scripting)
+// app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
+
+// app.use(helmet.frameguard({ action: "SAMEORIGIN" }));
+
 
 //  CORS est le mécanisme qui permet aux navigateurs d'accéder à des ressources qu'ils ne pourront pas à l'origine 
 // parce que la ressource est d'une origine différente

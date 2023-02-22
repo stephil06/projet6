@@ -22,11 +22,6 @@ const User = require('../models/user'); // importer le model User
       }
   puis SEND
 */
-/* myRouter.route('/api/auth/signup')
-  .post(function (req, res) { */
-
-// signup : inscrire l'utilisateur
-
 
 /* Retourne true Ssi le mot de passe pwd passé en argument est fort
  cf. https://askcodez.com/expression-reguliere-pour-la-validation-du-mot-de-passe.html
@@ -51,11 +46,10 @@ const isMotDePasseFort = (pwd) => {
       - retourne { erreur: "Le Mot de passe n'est pas assez fort ! } 
   - Si erreur : Retourne { error }
 */
+// signup : inscrire l'utilisateur
 exports.signup = (req, res, next) => {
-  console.log(req.body);
 
   if (isMotDePasseFort(req.body.password)) {
-    console.log("Mot de passe fort");
 
     bcrypt.hash(req.body.password, 10) // saler 10 fois
       .then(hash => {
@@ -100,15 +94,6 @@ puis SEND
 */
 exports.login = (req, res, next) => {
 
-/*
-  try {
-    // console.log('toto' + req.body);
-    // var test = JSON.parse(req.body); // Transforme le JSON en objet JS 
-    // console.log('test: ' + typeof req.body || "[NOT FOUND]");
-  } catch (error) {
-    res.status(400).json({ erreur: "Le body est mal écrit !" }); return;
-  }
-*/
   User.findOne({ email: req.body.email })
       .then(user => {
         if (!user) {
@@ -134,7 +119,6 @@ exports.login = (req, res, next) => {
               token: jwt.sign(
                 { userId: user._id },
                 // chaîne secrète pour chiffrer notre token
-                // 'RANDOM_TOKEN_SECRET',
                 process.env.RANDOM_TOKEN_SECRET,
                 //  durée de validité du token à 24 heures
                 { expiresIn: '24h' }

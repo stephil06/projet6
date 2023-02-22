@@ -61,7 +61,7 @@ exports.getLaSauce = (req, res, next) => {
 const supprimerFichier = (sauce) => {
   // Récupérer le nom du fichier relatif à la sauce (de la base de données)
   const fichierDB = sauce.imageUrl.split('/images/')[1];
-  console.log("fichierDB: " + fichierDB);
+  // console.log("fichierDB: " + fichierDB);
 
   // Supprimer ledit fichier du dossier '/images'
   fs.unlink(`../backend/images/${fichierDB}`, (error) => {
@@ -122,30 +122,17 @@ exports.updateSauce = (req, res, next) => {
       // codeHTTP404	Not Found	: "Ressource non trouvée"
       res.status(404).json({ erreur: "La sauce n'existe pas!" });
     else {
-      console.log('sauce.userId:' + sauce.userId + '; ' + 'req.auth.userId:' + req.auth.userId);
+      // console.log('sauce.userId:' + sauce.userId + '; ' + 'req.auth.userId:' + req.auth.userId);
       if (req.auth.userId != sauce.userId)
         // codeHTTP403 : Forbidden
         res.status(403).json({ erreur: "Ne peux pas être modifié par un autre utilisateur !" });
       else {
-        console.log("req.file:" + req.file);
+        // console.log("req.file:" + req.file);
         // Si le fichier mentionné dans le body n'est pas renseigné
         if (req.file === undefined) {
 
-          /*
-          try {
-            console.log("req.body:" + req.body);
-          }
-          catch (error) {
-            res.status(400).json({ erreur: "Le body est mal écrit !" });
-          }*/
-
-          // console.log("req.body:" + req.body.manufacturer);
-
           // On met à jour les infos
-          // Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-          // Sauce.updateOne({ _id: req.params.id }, { name: "toto", _id: req.params.id })
-          // Sauce.updateOne({ _id: req.params.id }, { ...req.body, userId: "63e4edd5235d2434c755a5fd", _id: req.params.id },
-          Sauce.updateOne({ _id: req.params.id }, { ...req.body, /* userId: "toto",*/ _id: req.params.id },
+          Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id },
             { runValidators: true }) // => définir l' option runValidators à true pour update()
             // car les validateurs de mise à jour sont désactivés par défaut
 
@@ -155,17 +142,9 @@ exports.updateSauce = (req, res, next) => {
         }
         else {
           supprimerFichier(sauce);
-          /* // Récupérer le nom du fichier relatif à la sauce (de la base de données)
-          const fichierDB = sauce.imageUrl.split('/images/')[1];
-          console.log("fichierDB: " + fichierDB);
 
-          // Supprimer ledit fichier du dossier '/images'
-          fs.unlink(`../backend/images/${fichierDB}`, (error) => {
-            if (error) console.log(error);
-          });
-          */
           // Récupérer le nom du fichier mentionné dans le body
-          const fichierBody = req.file.filename; console.log("fichierBody: " + fichierBody);
+          const fichierBody = req.file.filename; // console.log("fichierBody: " + fichierBody);
 
           try {
             // Transformer le JSON (req.body.sauce) en objet JS
@@ -206,7 +185,7 @@ exports.updateSauce = (req, res, next) => {
 exports.createSauce = (req, res, next) => {
 
   // console.log('body:' + req.body.sauce); 
-  console.log('Fichier createSauce:' + req.file);
+  // console.log('Fichier createSauce:' + req.file);
 
   // Si le fichier mentionné dans le body n'est pas renseigné
   if (req.file === undefined) {
@@ -214,7 +193,7 @@ exports.createSauce = (req, res, next) => {
   }
   else {
     // Récupérer le nom du fichier mentionné dans le body
-    const nomFichier = req.file.filename; console.log('Fichier :' + nomFichier);
+    const nomFichier = req.file.filename; // console.log('Fichier :' + nomFichier);
     if (!nomFichier.endsWith('jpg') && !nomFichier.endsWith('jpeg') && !nomFichier.endsWith('png'))
       res.status(400).json({ erreur: "Le fichier du body doit avoir pour extension : jpg, jpeg, ou png !" });
 

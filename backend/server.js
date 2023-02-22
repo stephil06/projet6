@@ -45,27 +45,3 @@ server.on('listening', () => {
 });
 
 server.listen(port);
-
-/* const app = require('./app');
-
-// Définir les paramètres du serveur
-const hostname = 'localhost';
-const port = 3000;
-
-// Démarrer le serveur 
-app.listen(port, hostname, function () {
-  console.log(`Le serveur fonctionne sur http://${hostname}:${port}\n`);
-});
-*/
-
-/* Pour tester :
-    1. Dans le dossier backend : nodemon server.js
-    2. Dans Postman :  http://localhost:3000/api/auth/login
-      POST
-      Body raw JSON :
-        {
-      "email": "TOi@gmail.com",
-      "password": "pwd455"
-      }
-*/
-

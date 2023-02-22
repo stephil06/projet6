@@ -1,4 +1,3 @@
-
 // -----------------------------------------------------------------------------------------------
 // ----- Require ---------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------
@@ -27,7 +26,6 @@ const mongoose = require('mongoose'); mongoose.set('strictQuery', true);
   ● usersDisliked : [ "String <userId>" ] — tableau des identifiants des utilisateurs qui n'ont pas aimé (= disliked) la sauce
 */
 
-// author: { type: Schema.Types.ObjectId, ref: 'Person' },
 const sauceSchema = mongoose.Schema({
   //  userId: { type: String, required: true, immutable: true}, 
 
@@ -45,19 +43,7 @@ const sauceSchema = mongoose.Schema({
   heat: { type: Number, min: 1, max: 10, required: true },
   likes: { type: Number, min: 0, required: true, default: 0  },
 
-  /* likes: { type: Number, min: 0, required: true, default: 0
-    , validate: (value)=>
-    {
-        console.log('ZAZA');
-        if(value != this.usersLiked.length)
-        {
-            throw new Error("le path 'likes' doit correspondre au nombre d'éléments de 'usersLiked'")
-        }
-    }
-  },*/
-
   dislikes: { type: Number, min: 0, required: true, default: 0 },
-  // usersLiked: [{ type: String, required: true, default: [] }],
   // usersLiked: [{ type: String, required: true, default: [] }],
   usersLiked: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'User'
@@ -76,29 +62,5 @@ sauceSchema.path('imageUrl').validate(function (v) {
     throw new Error('Imageurl doit se terminer par une extension .jpg ou .jpeg ou .png');
   return true;
 }, 'imageUrl `{VALUE}` is not valid');
-
-/*
-sauceSchema.post('validate', function (next) {
-  console.log("pre validate called");
-  this.set("likes", 2); // this.usersLiked.length;
-  next();
-});
-*/
-
-/*
-var schema = new mongoose.Schema({
-  name: String,
-  upvoteCount: Number,
-  upvotes: [{}]
-});
-
-schema.pre('validate', function (next) {
-  this.upvoteCount = this.upvotes.length
-  next();
-}); */
-
-
-
-// const Sauce = mongoose.model('Sauce', sauceSchema);
 
 module.exports = mongoose.model('Sauce', sauceSchema);
