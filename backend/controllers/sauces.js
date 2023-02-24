@@ -26,21 +26,6 @@ exports.getLesSauces = (req, res, next) => {
     .catch(error => res.status(404).json({ error }));
 };
 
-/*
-myRouter.route('/api/sauces')
-  .get(function (req, res) {
-    // fonction Mongoose pour trouver tous (la collection) les documents (i.e Sauce) 
-    Sauce.find(function (err, sauces) {
-      if (err) {
-        res.status(400).json({ erreur: err });
-      }
-      res.status(200).json(sauces);
-    });
-  })
-*/
-
-// myRouter.route('/api/sauces/:id')
-
 /* Retourner la sauce ayant pour identifiant : req.params.id dans la base de données
    Retourner { erreur: "La sauce n'existe pas!" } si identifiant n'existe pas
 */

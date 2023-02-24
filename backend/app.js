@@ -34,20 +34,16 @@ mongoose.connect(urlMongo,
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// app.use(helmet());
 // Pour toutes les requêtes : utilisation du package 'helmet' 
-// pour sécuriser les en-têtes HTTP contre les attaques (eg. cross-site scripting)
-// app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
+// pour sécuriser les en-têtes HTTP contre les attaques
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
 
-// app.use(helmet.frameguard({ action: "SAMEORIGIN" }));
-
-
-//  CORS est le mécanisme qui permet aux navigateurs d'accéder à des ressources qu'ils ne pourront pas à l'origine 
-// parce que la ressource est d'une origine différente
+// La méthode res.setHeader() ajoute un en-tête HTTP à la réponse
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    //  PATCH une mise à jour partielle : contrairement à PUT, Seuls les champs fournis seront mis à jour.
   next();
 });
 
@@ -58,8 +54,6 @@ app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
 /* Afficher un message d'erreur quand l'endpoint n'existe pas */
-// https://www.geeksforgeeks.org/how-to-get-the-full-url-in-expressjs/?ref=rp
-
 app.use('*', function (req, res) {
   /* 
   const url = req.originalUrl;
@@ -67,6 +61,5 @@ app.use('*', function (req, res) {
   */
   res.status(404).json({ erreur: `L'endpoint ${req.originalUrl} n'existe pas` });
 });
-
 
 module.exports = app;
